@@ -1,5 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="Theme.Mvvm" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your main theme colors here (optional) -->
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorSecondary">@color/purple_700</item>
+    </style>
 
-    <style name="Theme.Mvvm" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="CustomDatePickerTheme" parent="ThemeOverlay.Material3.MaterialCalendar">
+        <item name="colorPrimary">@color/purple_500</item>
+    </style>
+
+    <style name="CustomTimePickerTheme" parent="ThemeOverlay.Material3.MaterialTimePicker">
+        <item name="colorPrimary">@color/purple_500</item>
+    </style>
 </resources>

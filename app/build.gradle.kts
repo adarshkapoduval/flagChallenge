@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.mvvm"
+    namespace = "com.adarsh.flag"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.mvvm"
+        applicationId = "com.adarsh.flag"
         minSdk = 29
         targetSdk = 36
         versionCode = 1
@@ -61,6 +61,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.material)
     implementation(libs.retrofit)
     implementation(libs.converter.moshi)
     implementation(libs.kotlinx.coroutines.core)
