@@ -17,4 +17,10 @@ interface AnswerDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(answer: AnswerEntity)
+
+    @Query("DELETE FROM answers")
+    suspend fun clearAll()
+
+    @Query("SELECT COUNT(*) FROM answers WHERE isCorrect = 1")
+    suspend fun countCorrect(): Int
 }

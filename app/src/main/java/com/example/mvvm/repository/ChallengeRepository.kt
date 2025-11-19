@@ -17,12 +17,11 @@ class ChallengeRepository(private val db: AppDatabase) {
     private val sDao = db.challengeSettingsDao()
 
     fun getAllQuestionsFlow(): Flow<List<QuestionEntity>> = qDao.getAllQuestions()
-    fun getAllAnswersFlow(): Flow<List<AnswerEntity>> = aDao.getAllAnswers()
 
-    suspend fun insertQuestions(list: List<QuestionEntity>) = qDao.insertAll(list)
     suspend fun getQuestion(index: Int) = qDao.getQuestion(index)
 
     suspend fun saveAnswer(answer: AnswerEntity) = aDao.upsert(answer)
+
     suspend fun getAnswer(index: Int) = aDao.getAnswer(index)
 
     suspend fun saveScheduledStartTime(ms: Long) = sDao.save(
@@ -39,12 +38,20 @@ class ChallengeRepository(private val db: AppDatabase) {
 
     //Populate database from raw questions.json resource only if DB is empty.
     suspend fun populateQuestionsIfEmpty(context: Context, rawResId: Int) {
-        // check quickly
         val existing = db.questionDao().getAllQuestions().firstOrNull()
         if (!existing.isNullOrEmpty()) return
 
         val entities = QuestionsParser.parseFromRawResource(context, rawResId)
         db.questionDao().insertAll(entities)
+    }
+
+    suspend fun getCorrectAnswerCount(): Int {
+        return aDao.countCorrect()
+    }
+
+    suspend fun resetChallengeData() {
+        aDao.clearAll()
+        sDao.clear()
     }
 
 }

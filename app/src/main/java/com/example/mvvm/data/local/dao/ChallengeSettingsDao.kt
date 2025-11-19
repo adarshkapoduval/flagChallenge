@@ -14,4 +14,7 @@ interface ChallengeSettingsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun save(settings: ChallengeSettingsEntity)
+
+    @Query("DELETE FROM challenge_settings WHERE id = 0")
+    suspend fun clear()
 }

@@ -3,6 +3,7 @@ package com.example.mvvm.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mvvm.data.local.entity.AnswerEntity
+import com.example.mvvm.domain.constants.ChallengeConstants
 import com.example.mvvm.domain.model.enums.Phase
 import com.example.mvvm.repository.ChallengeRepository
 import com.example.mvvm.ui.state.ChallengeState
@@ -30,6 +31,12 @@ class ChallengeViewModel @Inject constructor(
     val ui: StateFlow<UiState> = _ui.asStateFlow()
 
     private var tickerJob: Job? = null
+
+    // Keep track of last phase to detect transitions
+    private var lastPhase: Phase = Phase.NOT_NEAR
+
+    // Keep a set of question indexes already finalized (so we don't finalize twice)
+    private val finalizedQuestions = mutableSetOf<Int>()
 
     init {
         viewModelScope.launch {
@@ -61,21 +68,87 @@ class ChallengeViewModel @Inject constructor(
         tickerJob?.cancel()
     }
 
+    private suspend fun handlePhaseTransition(old: Phase, new: Phase, questionIndex: Int?) {
+        // Only finalize when we move from QUESTION -> INTERVAL for a particular question index
+        if (old == Phase.QUESTION && new == Phase.INTERVAL && questionIndex != null) {
+            finalizeQuestionIfNeeded(questionIndex)
+        }
+    }
+
+    // finalize: ensure an AnswerEntity exists for questionIndex and isCorrect is set appropriately
+    private suspend fun finalizeQuestionIfNeeded(questionIndex: Int) {
+        if (finalizedQuestions.contains(questionIndex)) return
+
+        // fetch question + any saved answer
+        val question = withContext(Dispatchers.IO) { repo.getQuestion(questionIndex) } ?: run {
+            finalizedQuestions.add(questionIndex)
+            return
+        }
+
+        val answer = withContext(Dispatchers.IO) { repo.getAnswer(questionIndex) }
+        if (answer == null) {
+            // user did not answer — record as wrong (-1 or 0 as selectedOptionId)
+            val newAnswer = AnswerEntity(
+                questionIndex = questionIndex,
+                selectedOptionId = -1, // indicates no selection
+                answeredAtMs = System.currentTimeMillis(),
+                isCorrect = false
+            )
+            withContext(Dispatchers.IO) { repo.saveAnswer(newAnswer) }
+        } else {
+            // user answered — ensure isCorrect flag is accurate (in case answer saved earlier without correctness or we want to update)
+            val isCorrect = answer.selectedOptionId == question.correctAnswerId
+            if (answer.isCorrect != isCorrect) {
+                val updated = answer.copy(isCorrect = isCorrect)
+                withContext(Dispatchers.IO) { repo.saveAnswer(updated) }
+            }
+        }
+
+        finalizedQuestions.add(questionIndex)
+    }
+
     private suspend fun updateFromSchedule() {
         val scheduled = repo.getScheduledStartTime()
         if (scheduled == null) {
-            _ui.update { it.copy(phase = Phase.NOT_NEAR, currentQuestionIndex = null, remainingMs = 0L) }
+            _ui.update { it.copy(phase = Phase.NOT_NEAR, currentQuestionIndex = null, remainingMs = 0L, finalScore = null) }
+            lastPhase = Phase.NOT_NEAR
             return
         }
-        val state: ChallengeState = computeChallengeState(scheduled)
+
+        // determine total questions dynamically from loaded questions
+        val totalQuestions = _ui.value.questions.size.takeIf { it > 0 } ?: run {
+            // fallback: try to get count from DB or use default constant
+            val cnt = repo.questionsCount() // you added this earlier or use dao.count()
+            if (cnt > 0) cnt else ChallengeConstants.TOTAL_QUESTIONS
+        }
+
+        val state = computeChallengeState(scheduled, totalQuestions)
+
+        // handle transition/finalization (same as before)
+        handlePhaseTransition(lastPhase, state.phase, state.questionIndex)
+        lastPhase = state.phase
+
+        // finished -> compute score (unchanged)
+        if (state.phase == Phase.FINISHED) {
+            if (_ui.value.finalScore == null) {
+                val correctCount = repo.getCorrectAnswerCount()
+                _ui.update { it.copy(phase = state.phase, currentQuestionIndex = null, remainingMs = 0L, finalScore = correctCount) }
+                return
+            }
+        }
+
         _ui.update { it.copy(phase = state.phase, currentQuestionIndex = state.questionIndex, remainingMs = state.remainingMs) }
     }
+
+
 
     fun scheduleChallenge(ms: Long) {
         viewModelScope.launch {
             repo.saveScheduledStartTime(ms)
+            // update UI immediately from schedule
+            updateFromSchedule() // call the suspend function to refresh UI
+            startTicker()
         }
-        startTicker()
     }
 
 
@@ -99,6 +172,27 @@ class ChallengeViewModel @Inject constructor(
             _ui.update { current ->
                 // If UiState stores more per-question info in future, update accordingly.
                 current.copy() // no structural change here, but composable will query repo for saved answer (see below).
+            }
+        }
+    }
+
+    fun resetChallenge() {
+        viewModelScope.launch {
+            // stop periodic updates while we clear
+            stopTicker()
+
+            // clear DB state
+            repo.resetChallengeData()
+
+            // update UI to reflect cleared state
+            _ui.update {
+                it.copy(
+                    phase = Phase.NOT_NEAR,
+                    currentQuestionIndex = null,
+                    remainingMs = 0L,
+                    finalScore = null
+                    // optionally clear questions list or keep loaded questions
+                )
             }
         }
     }
