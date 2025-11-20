@@ -42,7 +42,6 @@ android {
     }
     buildFeatures {
         compose = true
-        viewBinding = true
     }
     packaging {
         resources {
@@ -64,7 +63,6 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.material)
     implementation(libs.retrofit)
-    implementation(libs.converter.moshi)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.room.runtime)

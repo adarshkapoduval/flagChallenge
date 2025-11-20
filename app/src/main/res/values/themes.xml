@@ -6,10 +6,10 @@
     </style>
 
     <style name="CustomDatePickerTheme" parent="ThemeOverlay.Material3.MaterialCalendar">
-        <item name="colorPrimary">@color/purple_500</item>
+        <item name="tint">@color/teal_700</item>
     </style>
 
     <style name="CustomTimePickerTheme" parent="ThemeOverlay.Material3.MaterialTimePicker">
-        <item name="colorPrimary">@color/purple_500</item>
+        <item name="tint">@color/teal_700</item>
     </style>
 </resources>

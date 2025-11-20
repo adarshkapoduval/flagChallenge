@@ -43,6 +43,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import com.adarsh.flag.ui.theme.CardBg
 import com.adarsh.flag.ui.theme.DarkBg
 import com.adarsh.flag.ui.theme.GameBlue
@@ -492,7 +495,10 @@ private fun IntervalResultView(
     val options: List<Country> = remember(question.optionsJson) {
         val json = Json { ignoreUnknownKeys = true }
         try {
-            json.decodeFromString(ListSerializer(Country.serializer()), question.optionsJson)
+            val decoded = json.decodeFromString(ListSerializer(Country.serializer()), question.optionsJson)
+
+            // Deduplicate by ID
+            decoded.distinctBy { it.id }
         } catch (t: Throwable) {
             emptyList()
         }
@@ -579,8 +585,11 @@ private fun IntervalResultView(
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
+                                    val isLastQuestion = question.index + 1 == totalQuestions
+
                                     Text(
-                                        text = "Next in ${formatMs(remainingMs)}",
+                                        text = if (isLastQuestion) "Ends in ${formatMs(remainingMs)}"
+                                        else "Next in ${formatMs(remainingMs)}",
                                         style = MaterialTheme.typography.titleMedium,
                                         color = GameBlue,
                                         fontWeight = FontWeight.Bold
@@ -590,73 +599,52 @@ private fun IntervalResultView(
                         }
                     }
                 }
-
                 Spacer(modifier = Modifier.height(24.dp))
-
-                // Flag Display Card
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .shadow(12.dp, RoundedCornerShape(20.dp), spotColor = GamePurple),
-                    colors = CardDefaults.cardColors(containerColor = CardBg),
-                    shape = RoundedCornerShape(20.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.radialGradient(
-                                    colors = listOf(
-                                        GamePurple.copy(alpha = 0.2f),
-                                        Color.Transparent
-                                    )
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                imageVector = Icons.Default.LocationOn,
-                                contentDescription = null,
-                                modifier = Modifier.size(80.dp),
-                                tint = GamePurple
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = question.countryCode,
-                                style = MaterialTheme.typography.displaySmall,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = Color.White,
-                                letterSpacing = 2.sp
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    text = "REVIEW ANSWER",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = GameYellow,
-                    letterSpacing = 2.sp,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     options.forEachIndexed { index, opt ->
                         val isCorrect = opt.id == question.correctAnswerId
                         val isSelected = savedAnswer?.selectedOptionId == opt.id
 
-                        StyledReviewOptionCard(
-                            text = opt.country_name,
-                            index = index,
-                            isSelected = isSelected,
-                            isCorrect = isCorrect,
-                            isWrong = isSelected && !isCorrect
-                        )
+                        Column {
+                            StyledReviewOptionCard(
+                                text = opt.country_name,
+                                index = index,
+                                isSelected = isSelected,
+                                isCorrect = isCorrect,
+                                isWrong = isSelected && !isCorrect
+                            )
+
+                            // Show label below the option
+                            if (isSelected && isCorrect) {
+                                // User selected correct answer
+                                Text(
+                                    text = "Correct",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = GameGreen,
+                                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                )
+                            } else if (isSelected && !isCorrect) {
+                                // User selected wrong answer
+                                Text(
+                                    text = "Wrong",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = GameRed,
+                                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                )
+                            } else if (!isSelected && isCorrect && !isCorrectAnswer) {
+                                // Show correct answer when user was wrong
+                                Text(
+                                    text = "Correct",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = GameGreen,
+                                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -706,13 +694,6 @@ private fun IntervalResultView(
                                     modifier = Modifier.size(100.dp),
                                     tint = if (isCorrectAnswer) GameGreen else GameRed
                                 )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    text = question.countryCode,
-                                    style = MaterialTheme.typography.displaySmall,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    color = Color.White
-                                )
                             }
                         }
                     }
@@ -729,9 +710,12 @@ private fun IntervalResultView(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
+                    val isLastQuestion = question.index + 1 == totalQuestions
+
                     Text(
-                        text = "Next in ${formatMs(remainingMs)}",
-                        style = MaterialTheme.typography.titleLarge,
+                        text = if (isLastQuestion) "Ends in ${formatMs(remainingMs)}"
+                        else "Next in ${formatMs(remainingMs)}",
+                        style = MaterialTheme.typography.titleMedium,
                         color = GameBlue,
                         fontWeight = FontWeight.Bold
                     )
@@ -743,27 +727,50 @@ private fun IntervalResultView(
                         .fillMaxHeight()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    Text(
-                        text = "REVIEW ANSWER",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = GameYellow,
-                        letterSpacing = 2.sp,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         options.forEachIndexed { index, opt ->
                             val isCorrect = opt.id == question.correctAnswerId
                             val isSelected = savedAnswer?.selectedOptionId == opt.id
 
-                            StyledReviewOptionCard(
-                                text = opt.country_name,
-                                index = index,
-                                isSelected = isSelected,
-                                isCorrect = isCorrect,
-                                isWrong = isSelected && !isCorrect
-                            )
+                            Column {
+                                StyledReviewOptionCard(
+                                    text = opt.country_name,
+                                    index = index,
+                                    isSelected = isSelected,
+                                    isCorrect = isCorrect,
+                                    isWrong = isSelected && !isCorrect
+                                )
+
+                                // Show label below the option
+                                if (isSelected && isCorrect) {
+                                    // User selected correct answer
+                                    Text(
+                                        text = "Correct",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = GameGreen,
+                                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                    )
+                                } else if (isSelected && !isCorrect) {
+                                    // User selected wrong answer
+                                    Text(
+                                        text = "Wrong",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = GameRed,
+                                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                    )
+                                } else if (!isSelected && isCorrect && !isCorrectAnswer) {
+                                    // Show correct answer when user was wrong
+                                    Text(
+                                        text = "Correct",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = GameGreen,
+                                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -857,7 +864,9 @@ private fun QuestionContent(
 
     val options: List<Country> = remember(question.optionsJson) {
         try {
-            json.decodeFromString(ListSerializer(Country.serializer()), question.optionsJson)
+            val decoded = json.decodeFromString(ListSerializer(Country.serializer()), question.optionsJson)
+            // Deduplicate by ID
+            decoded.distinctBy { it.id }
         } catch (t: Throwable) {
             listOf(
                 Country(country_name = "Option 1", id = 1),
@@ -1013,13 +1022,6 @@ private fun PortraitQuestionLayout(
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.LocationOn,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp),
-                                    tint = progressColor
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "${question.index + 1}/$totalQuestions",
                                     style = MaterialTheme.typography.labelLarge,
@@ -1088,21 +1090,35 @@ private fun PortraitQuestionLayout(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = null,
-                        modifier = Modifier.size(100.dp),
-                        tint = GamePurple
+                val context = LocalContext.current
+                val flagResName = "flag_${question.countryCode.lowercase()}"
+                val flagResId = remember(question.countryCode) {
+                    context.resources.getIdentifier(flagResName, "drawable", context.packageName)
+                }
+                if (flagResId != 0) {
+                    Image(
+                        painter = painterResource(id = flagResId),
+                        contentDescription = "Flag",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Text(
-                        text = question.countryCode,
-                        style = MaterialTheme.typography.displaySmall,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color.White,
-                        letterSpacing = 3.sp
-                    )
+                }else {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = null,
+                            modifier = Modifier.size(100.dp),
+                            tint = GamePurple
+                        )
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Text(
+                            text = question.countryCode,
+                            style = MaterialTheme.typography.displaySmall,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.White,
+                            letterSpacing = 3.sp
+                        )
+                    }
                 }
             }
         }
@@ -1110,8 +1126,8 @@ private fun PortraitQuestionLayout(
         Spacer(modifier = Modifier.height(28.dp))
 
         Text(
-            text = "WHICH COUNTRY IS THIS?",
-            style = MaterialTheme.typography.titleLarge,
+            text = "GUESS THE COUNTRY BY FLAG",
+            style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.ExtraBold,
             color = GameYellow,
             letterSpacing = 2.sp,
@@ -1184,11 +1200,6 @@ private fun StyledOptionCard(
         modifier = Modifier
             .fillMaxWidth()
             .scale(scale)
-            .shadow(
-                elevation = if (isSelected && !showResult) 12.dp else 4.dp,
-                shape = RoundedCornerShape(16.dp),
-                spotColor = borderColor
-            )
             .then(if (!isDisabled) Modifier.clickable { onClick() } else Modifier),
         colors = CardDefaults.cardColors(containerColor = containerColor),
         shape = RoundedCornerShape(16.dp),
@@ -1200,7 +1211,7 @@ private fun StyledOptionCard(
             )
         ) {
             Row(
-                modifier = Modifier.padding(20.dp),
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
@@ -1284,46 +1295,6 @@ private fun LandscapeQuestionLayout(
             Spacer(modifier = Modifier.height(16.dp))
 
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .shadow(16.dp, RoundedCornerShape(24.dp), spotColor = GamePurple),
-                colors = CardDefaults.cardColors(containerColor = CardBg)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.radialGradient(
-                                colors = listOf(
-                                    GamePurple.copy(alpha = 0.3f),
-                                    Color.Transparent
-                                )
-                            )
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = null,
-                            modifier = Modifier.size(120.dp),
-                            tint = GamePurple
-                        )
-                        Spacer(modifier = Modifier.height(20.dp))
-                        Text(
-                            text = question.countryCode,
-                            style = MaterialTheme.typography.displayMedium,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color.White
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = CardBg)
             ) {
@@ -1344,6 +1315,60 @@ private fun LandscapeQuestionLayout(
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .shadow(16.dp, RoundedCornerShape(24.dp), spotColor = GamePurple),
+                colors = CardDefaults.cardColors(containerColor = CardBg)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(
+                                    GamePurple.copy(alpha = 0.3f),
+                                    Color.Transparent
+                                )
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val context = LocalContext.current
+                    val flagResName = "flag_${question.countryCode.lowercase()}"
+                    val flagResId = remember(question.countryCode) {
+                        context.resources.getIdentifier(flagResName, "drawable", context.packageName)
+                    }
+                    if (flagResId != 0) {
+                        Image(
+                            painter = painterResource(id = flagResId),
+                            contentDescription = "Flag",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }else{
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = null,
+                                modifier = Modifier.size(120.dp),
+                                tint = GamePurple
+                            )
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Text(
+                                text = question.countryCode,
+                                style = MaterialTheme.typography.displayMedium,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         // Right side - Options
@@ -1354,8 +1379,8 @@ private fun LandscapeQuestionLayout(
                 .verticalScroll(rememberScrollState())
         ) {
             Text(
-                text = "WHICH COUNTRY IS THIS?",
-                style = MaterialTheme.typography.titleLarge,
+                text = "GUESS THE COUNTRY BY FLAG",
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.ExtraBold,
                 color = GameYellow,
                 letterSpacing = 2.sp,
@@ -1399,7 +1424,7 @@ private fun StyledReviewOptionCard(
         isCorrect -> GameGreen.copy(alpha = 0.2f)
         isWrong -> GameRed.copy(alpha = 0.2f)
         isSelected -> GamePurple.copy(alpha = 0.2f)
-        else -> CardBg
+        else -> Color.Transparent
     }
 
     val borderColor = when {
@@ -1418,12 +1443,7 @@ private fun StyledReviewOptionCard(
 
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .shadow(
-                elevation = 4.dp,
-                shape = RoundedCornerShape(16.dp),
-                spotColor = borderColor
-            ),
+            .fillMaxWidth(),   // ← removed .shadow()
         colors = CardDefaults.cardColors(containerColor = containerColor),
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(2.dp, borderColor)
@@ -1434,7 +1454,7 @@ private fun StyledReviewOptionCard(
             )
         ) {
             Row(
-                modifier = Modifier.padding(20.dp),
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
@@ -1621,6 +1641,10 @@ private fun LandscapeFinishedLayout(
                 floatingOffset = floatingOffset,
                 isCompact = true
             )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            TryAgainButton(onTryAgain = onTryAgain)
         }
 
         Column(
@@ -1637,10 +1661,6 @@ private fun LandscapeFinishedLayout(
                 isPassed = isPassed,
                 isCompact = true
             )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            TryAgainButton(onTryAgain = onTryAgain)
         }
     }
 }
@@ -1684,7 +1704,7 @@ private fun FinishedHeaderSection(
         Spacer(modifier = Modifier.height(if (isCompact) 12.dp else 16.dp))
 
         Text(
-            text = "CHALLENGE COMPLETE",
+            text = "GAME OVER",
             style = if (isCompact) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.ExtraBold,
             color = Color.White,

@@ -1,22 +1,22 @@
 package com.adarsh.flag.ui.screens
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -74,10 +74,10 @@ fun ScheduleScreen(
 
     val displayEpoch: Long? = tempSelectedEpochMs ?: scheduledEpoch
 
-    val pickedDate: LocalDate? = displayEpoch?.let {
+    var pickedDate: LocalDate? = displayEpoch?.let {
         Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
     }
-    val pickedTime: LocalTime? = displayEpoch?.let {
+    var pickedTime: LocalTime? = displayEpoch?.let {
         Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalTime()
     }
 
@@ -112,31 +112,43 @@ fun ScheduleScreen(
         }
     }
 
-    val onPickDateTime: () -> Unit = {
-        showDatePicker(ctx, onDateSelected = { date ->
-            showTimePicker(ctx, onTimeSelected = { time ->
-                val localDateTime = LocalDateTime.of(date, time)
-                val zone = ZoneId.systemDefault()
-                val zdt: ZonedDateTime = ZonedDateTime.of(localDateTime, zone)
-                val epochMs = zdt.toInstant().toEpochMilli()
+    LaunchedEffect(Unit) {
+        val now = LocalDateTime.now()
+        val zone = ZoneId.systemDefault()
+        val zdt = now.atZone(zone)
+        pickedDate = now.toLocalDate()
+        pickedTime = now.toLocalTime()
+        tempSelectedEpochMs = zdt.toInstant().toEpochMilli()
+    }
 
-                val now = System.currentTimeMillis()
-                if (epochMs <= now) {
-                    alertConfig = AlertState(
-                        title = "Invalid Date/Time",
-                        message = "Please choose a future date/time"
-                    )
-                    showAlert = true
-                    return@showTimePicker
-                }
 
-                tempSelectedEpochMs = epochMs
-            })
-        })
+
+    val onTimeChange: (Int, Int, Int) -> Unit = { hour, minute, second ->
+        val date = pickedDate ?: LocalDate.now()
+        val time = LocalTime.of(hour, minute, second)
+
+        val localDateTime = LocalDateTime.of(date, time)
+        val zone = ZoneId.systemDefault()
+        val zdt: ZonedDateTime = ZonedDateTime.of(localDateTime, zone)
+        val epochMs = zdt.toInstant().toEpochMilli()
+
+        tempSelectedEpochMs = epochMs
     }
 
     val onSaveStaged: () -> Unit = {
+
         tempSelectedEpochMs?.let { epoch ->
+            val now = System.currentTimeMillis()
+
+            // ✅ Validate ONLY when saving
+            if (epoch <= now) {
+                alertConfig = AlertState(
+                    title = "Invalid Date/Time",
+                    message = "Please choose a future date/time"
+                )
+                showAlert = true
+                return@let
+            }
             viewModel.scheduleChallenge(epoch)
             showSuccess = true
             tempSelectedEpochMs = null
@@ -168,7 +180,7 @@ fun ScheduleScreen(
                 pickedTime = pickedTime,
                 pulseScale = pulseScale,
                 floatingOffset = floatingOffset,
-                onPickDateTime = onPickDateTime,
+                onTimeChange = onTimeChange,
                 hasStaged = tempSelectedEpochMs != null,
                 isSaved = isSaved,
                 onSave = onSaveStaged,
@@ -180,7 +192,7 @@ fun ScheduleScreen(
                 pickedTime = pickedTime,
                 pulseScale = pulseScale,
                 floatingOffset = floatingOffset,
-                onPickDateTime = onPickDateTime,
+                onTimeChange = onTimeChange,
                 hasStaged = tempSelectedEpochMs != null,
                 isSaved = isSaved,
                 onSave = onSaveStaged,
@@ -269,7 +281,7 @@ private fun PortraitLayout(
     pickedTime: LocalTime?,
     pulseScale: Float,
     floatingOffset: Float,
-    onPickDateTime: () -> Unit,
+    onTimeChange: (Int, Int, Int) -> Unit,
     hasStaged: Boolean,
     isSaved: Boolean,
     onSave: () -> Unit,
@@ -294,7 +306,12 @@ private fun PortraitLayout(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            PickDateTimeButton(onPickDateTime = onPickDateTime)
+            PickDateTime(
+                hour = pickedTime?.hour ?: LocalTime.now().hour,
+                minute = pickedTime?.minute ?: LocalTime.now().minute,
+                second = pickedTime?.second ?: LocalTime.now().second,
+                onTimeChange = onTimeChange
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -313,7 +330,7 @@ private fun LandscapeLayout(
     pickedTime: LocalTime?,
     pulseScale: Float,
     floatingOffset: Float,
-    onPickDateTime: () -> Unit,
+    onTimeChange: (Int, Int, Int) -> Unit,
     hasStaged: Boolean,
     isSaved: Boolean,
     onSave: () -> Unit,
@@ -335,6 +352,17 @@ private fun LandscapeLayout(
             verticalArrangement = Arrangement.Center
         ) {
             HeaderSection(pulseScale = pulseScale, floatingOffset = floatingOffset, isCompact = true)
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            PickDateTime(
+                hour = pickedTime?.hour ?: LocalTime.now().hour,
+                minute = pickedTime?.minute ?: LocalTime.now().minute,
+                second = pickedTime?.second ?: LocalTime.now().second,
+                onTimeChange = onTimeChange
+            )
+
+
         }
 
         Column(
@@ -345,10 +373,6 @@ private fun LandscapeLayout(
             verticalArrangement = Arrangement.Center
         ) {
             ScheduleCard(pickedDate = pickedDate, pickedTime = pickedTime, isCompact = true, isSaved = isSaved)
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            PickDateTimeButton(onPickDateTime = onPickDateTime)
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -562,7 +586,7 @@ private fun ScheduleCard(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = pickedTime.format(DateTimeFormatter.ofPattern("hh:mm a")),
+                                text = pickedTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")),
                                 style = if (isCompact) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
@@ -576,74 +600,156 @@ private fun ScheduleCard(
 }
 
 @Composable
-private fun PickDateTimeButton(onPickDateTime: () -> Unit) {
-    var isPressed by remember { mutableStateOf(false) }
+private fun PickDateTime(
+    hour: Int,
+    minute: Int,
+    second: Int,
+    onTimeChange: (Int, Int, Int) -> Unit
+) {
+    var currentHour by remember { mutableIntStateOf(hour) }
+    var currentMinute by remember { mutableIntStateOf(minute) }
+    var currentSecond by remember { mutableIntStateOf(second) }
 
-    Button(
-        onClick = {
-            isPressed = true
-            onPickDateTime()
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(68.dp)
-            .shadow(
-                elevation = if (isPressed) 4.dp else 12.dp,
-                shape = RoundedCornerShape(18.dp),
-                spotColor = GamePurple
-            )
-            .scale(if (isPressed) 0.98f else 1f),
-        shape = RoundedCornerShape(18.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
-            contentColor = Color.White
-        ),
-        contentPadding = PaddingValues(0.dp)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(
-                            GamePurple,
-                            GamePink,
-                            GameBlue
-                        )
-                    )
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CalendarMonth,
-                    contentDescription = null,
-                    modifier = Modifier.size(28.dp),
-                    tint = Color.White
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "PICK DATE & TIME",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color.White,
-                    letterSpacing = 1.5.sp
-                )
+        // Hour
+        TimeBox(
+            value = currentHour,
+            maxValue = 23,
+            label = "HOUR",
+            onValueChange = {
+                currentHour = it
+                onTimeChange(currentHour, currentMinute, currentSecond)
             }
-        }
-    }
+        )
 
-    LaunchedEffect(isPressed) {
-        if (isPressed) {
-            kotlinx.coroutines.delay(100)
-            isPressed = false
-        }
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Text(
+            text = ":",
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        // Minute
+        TimeBox(
+            value = currentMinute,
+            maxValue = 59,
+            label = "MIN",
+            onValueChange = {
+                currentMinute = it
+                onTimeChange(currentHour, currentMinute, currentSecond)
+            }
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Text(
+            text = ":",
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        // Second
+        TimeBox(
+            value = currentSecond,
+            maxValue = 59,
+            label = "SEC",
+            onValueChange = {
+                currentSecond = it
+                onTimeChange(currentHour, currentMinute, currentSecond)
+            }
+        )
     }
 }
 
+@Composable
+private fun TimeBox(
+    value: Int,
+    maxValue: Int,
+    label: String,
+    onValueChange: (Int) -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.White.copy(alpha = 0.7f),
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.sp
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Box(
+            modifier = Modifier
+                .size(80.dp)
+                .background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .border(
+                    width = 2.dp,
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(GamePurple, GamePink, GameBlue)
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Up arrow
+                IconButton(
+                    onClick = {
+                        onValueChange(if (value >= maxValue) 0 else value + 1)
+                    },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowUp,
+                        contentDescription = "Increase",
+                        tint = GamePurple
+                    )
+                }
+
+                // Value display
+                Text(
+                    text = value.toString().padStart(2, '0'),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+
+                // Down arrow
+                IconButton(
+                    onClick = {
+                        onValueChange(if (value <= 0) maxValue else value - 1)
+                    },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = "Decrease",
+                        tint = GamePurple
+                    )
+                }
+            }
+        }
+    }
+}
 @Composable
 private fun SaveCancelRow(hasStaged: Boolean, onSave: () -> Unit, onCancel: () -> Unit) {
     Row(
@@ -751,30 +857,4 @@ private fun SaveCancelRow(hasStaged: Boolean, onSave: () -> Unit, onCancel: () -
             }
         }
     }
-}
-
-private fun showDatePicker(context: android.content.Context, onDateSelected: (LocalDate) -> Unit) {
-    val now = java.util.Calendar.getInstance()
-    val y = now.get(java.util.Calendar.YEAR)
-    val m = now.get(java.util.Calendar.MONTH)
-    val d = now.get(java.util.Calendar.DAY_OF_MONTH)
-
-    val dpd = DatePickerDialog(context, { _, year, month, dayOfMonth ->
-        val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
-        onDateSelected(selectedDate)
-    }, y, m, d)
-
-    dpd.datePicker.minDate = System.currentTimeMillis()
-    dpd.show()
-}
-
-private fun showTimePicker(context: android.content.Context, onTimeSelected: (LocalTime) -> Unit) {
-    val now = java.util.Calendar.getInstance()
-    val hour = now.get(java.util.Calendar.HOUR_OF_DAY)
-    val minute = now.get(java.util.Calendar.MINUTE)
-
-    val tpd = TimePickerDialog(context, { _, h, min ->
-        onTimeSelected(LocalTime.of(h, min))
-    }, hour, minute, true)
-    tpd.show()
 }
