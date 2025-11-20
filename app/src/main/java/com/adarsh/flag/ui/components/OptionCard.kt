@@ -10,7 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import com.adarsh.flag.ui.theme.Dimens
 
 @Composable
 fun OptionCard(
@@ -27,15 +27,15 @@ fun OptionCard(
     }
     val finalModifier = modifier
         .fillMaxWidth()
-        .height(56.dp)
-        .then(if (borderColor != null) Modifier.border(2.dp, borderColor, RoundedCornerShape(8.dp)) else Modifier)
-        .background(bg, RoundedCornerShape(8.dp))
+        .height(Dimens.OptionCardHeight)
+        .then(if (borderColor != null) Modifier.border(Dimens.BorderWidth, borderColor, RoundedCornerShape(Dimens.CardCornerRadiusSmall)) else Modifier)
+        .background(bg, RoundedCornerShape(Dimens.CardCornerRadiusSmall))
 
     Surface(modifier = finalModifier
-        .padding(vertical = 4.dp)
+        .padding(vertical = Dimens.PaddingExtraSmall)
         .then(if (!isDisabled) Modifier.clickable { onClick() } else Modifier)
     ) {
-        Box(modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp), contentAlignment = androidx.compose.ui.Alignment.CenterStart) {
+        Box(modifier = Modifier.fillMaxSize().padding(horizontal = Dimens.PaddingMedium), contentAlignment = androidx.compose.ui.Alignment.CenterStart) {
             Text(text = text)
         }
     }

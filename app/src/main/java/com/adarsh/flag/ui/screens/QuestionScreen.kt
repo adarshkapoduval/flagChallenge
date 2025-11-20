@@ -23,8 +23,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.adarsh.flag.domain.constants.ChallengeConstants
 import com.adarsh.flag.domain.model.Country
 import com.adarsh.flag.domain.model.enums.Phase
@@ -46,8 +44,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import com.adarsh.flag.domain.model.Answer
 import com.adarsh.flag.ui.theme.CardBg
 import com.adarsh.flag.ui.theme.DarkBg
+import com.adarsh.flag.ui.theme.Dimens
 import com.adarsh.flag.ui.theme.GameBlue
 import com.adarsh.flag.ui.theme.GameGreen
 import com.adarsh.flag.ui.theme.GamePink
@@ -202,21 +203,21 @@ private fun PreStartScreen(remainingMs: Long) {
         if (!landscape) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(24.dp)
+                modifier = Modifier.padding(Dimens.SpacerExtraLarge)
             ) {
                 // Pulsing "Get Ready" badge
                 Card(
                     modifier = Modifier
                         .scale(scale)
                         .shadow(
-                            elevation = 16.dp,
-                            shape = RoundedCornerShape(20.dp),
+                            elevation = Dimens.SpacerLarge,
+                            shape = RoundedCornerShape(Dimens.SpacerMediumLarge),
                             spotColor = Color(0xFFFBBF24)
                         ),
                     colors = CardDefaults.cardColors(
                         containerColor = Color.Transparent
                     ),
-                    shape = RoundedCornerShape(20.dp)
+                    shape = RoundedCornerShape(Dimens.SpacerMediumLarge)
                 ) {
                     Box(
                         modifier = Modifier
@@ -228,19 +229,19 @@ private fun PreStartScreen(remainingMs: Long) {
                                     )
                                 )
                             )
-                            .padding(horizontal = 32.dp, vertical = 16.dp)
+                            .padding(horizontal = Dimens.PaddingExtraLarge, vertical = Dimens.SpacerLarge)
                     ) {
                         Text(
                             text = "⚡ GET READY! ⚡",
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.ExtraBold,
                             color = Color(0xFF0F172A),
-                            letterSpacing = 2.sp
+                            letterSpacing = Dimens.LetterSpaceMedium
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(Dimens.PaddingExtraLarge))
 
                 // "Challenge starts in" text
                 Text(
@@ -248,24 +249,24 @@ private fun PreStartScreen(remainingMs: Long) {
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = Color.White.copy(alpha = 0.7f),
-                    letterSpacing = 3.sp
+                    letterSpacing = Dimens.LetterSpaceLarge
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacerExtraLarge))
 
                 // Timer Card
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .shadow(
-                            elevation = 20.dp,
-                            shape = RoundedCornerShape(24.dp),
+                            elevation = Dimens.SpacerMediumLarge,
+                            shape = RoundedCornerShape(Dimens.SpacerExtraLarge),
                             spotColor = Color(0xFF9333EA)
                         ),
                     colors = CardDefaults.cardColors(
                         containerColor = Color(0xFF1E293B)
                     ),
-                    shape = RoundedCornerShape(24.dp)
+                    shape = RoundedCornerShape(Dimens.SpacerExtraLarge)
                 ) {
                     Box(
                         modifier = Modifier
@@ -278,13 +279,13 @@ private fun PreStartScreen(remainingMs: Long) {
                                     )
                                 )
                             )
-                            .padding(32.dp),
+                            .padding(Dimens.PaddingExtraLarge),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = formatMs(remainingMs),
                             style = MaterialTheme.typography.displayLarge.copy(
-                                fontSize = 56.sp
+                                fontSize = Dimens.TextSizeUltraLarge
                             ),
                             fontWeight = FontWeight.ExtraBold,
                             color = Color.White,
@@ -293,7 +294,7 @@ private fun PreStartScreen(remainingMs: Long) {
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacerExtraLarge))
 
                 // Animated progress indicator
                 Row(
@@ -304,14 +305,14 @@ private fun PreStartScreen(remainingMs: Long) {
                     repeat(3) { index ->
                         Box(
                             modifier = Modifier
-                                .size(12.dp)
+                                .size(Dimens.SpacerMedium)
                                 .background(
                                     Color(0xFFEC4899),
                                     shape = CircleShape
                                 )
                         )
                         if (index < 2) {
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(Dimens.SpacerMedium))
                         }
                     }
                 }
@@ -321,7 +322,7 @@ private fun PreStartScreen(remainingMs: Long) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(32.dp)
+                modifier = Modifier.padding(Dimens.PaddingExtraLarge)
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -331,14 +332,14 @@ private fun PreStartScreen(remainingMs: Long) {
                         modifier = Modifier
                             .scale(scale)
                             .shadow(
-                                elevation = 16.dp,
-                                shape = RoundedCornerShape(20.dp),
+                                elevation = Dimens.SpacerLarge,
+                                shape = RoundedCornerShape(Dimens.SpacerMediumLarge),
                                 spotColor = Color(0xFFFBBF24)
                             ),
                         colors = CardDefaults.cardColors(
                             containerColor = Color.Transparent
                         ),
-                        shape = RoundedCornerShape(20.dp)
+                        shape = RoundedCornerShape(Dimens.SpacerMediumLarge)
                     ) {
                         Box(
                             modifier = Modifier
@@ -350,29 +351,29 @@ private fun PreStartScreen(remainingMs: Long) {
                                         )
                                     )
                                 )
-                                .padding(horizontal = 28.dp, vertical = 14.dp)
+                                .padding(horizontal = Dimens.SpacerExtraLarge, vertical = Dimens.SpacerMediumLarge)
                         ) {
                             Text(
                                 text = "⚡ GET READY! ⚡",
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = Color(0xFF0F172A),
-                                letterSpacing = 2.sp
+                                letterSpacing = Dimens.LetterSpaceMedium
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(Dimens.SpacerMediumLarge))
 
                     Text(
                         text = "CHALLENGE STARTS IN",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = Color.White.copy(alpha = 0.7f),
-                        letterSpacing = 2.sp
+                        letterSpacing = Dimens.LetterSpaceMedium
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(Dimens.SpacerLarge))
 
                     // Animated progress indicator
                     Row(
@@ -383,33 +384,33 @@ private fun PreStartScreen(remainingMs: Long) {
                         repeat(3) { index ->
                             Box(
                                 modifier = Modifier
-                                    .size(10.dp)
+                                    .size(Dimens.SpacerSmall)
                                     .background(
                                         Color(0xFFEC4899),
                                         shape = CircleShape
                                     )
                             )
                             if (index < 2) {
-                                Spacer(modifier = Modifier.width(10.dp))
+                                Spacer(modifier = Modifier.width(Dimens.SpacerSmall))
                             }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.width(48.dp))
+                Spacer(modifier = Modifier.width(Dimens.PaddingUltraLarge))
 
                 // Timer Card
                 Card(
                     modifier = Modifier
                         .shadow(
-                            elevation = 20.dp,
-                            shape = RoundedCornerShape(24.dp),
+                            elevation = Dimens.SpacerMediumLarge,
+                            shape = RoundedCornerShape(Dimens.SpacerExtraLarge),
                             spotColor = Color(0xFF9333EA)
                         ),
                     colors = CardDefaults.cardColors(
                         containerColor = Color(0xFF1E293B)
                     ),
-                    shape = RoundedCornerShape(24.dp)
+                    shape = RoundedCornerShape(Dimens.SpacerExtraLarge)
                 ) {
                     Box(
                         modifier = Modifier
@@ -421,13 +422,13 @@ private fun PreStartScreen(remainingMs: Long) {
                                     )
                                 )
                             )
-                            .padding(40.dp),
+                            .padding(Dimens.PaddingExtraLarge),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = formatMs(remainingMs),
                             style = MaterialTheme.typography.displayLarge.copy(
-                                fontSize = 64.sp
+                                fontSize = Dimens.TextSizeUltraExtraLarge
                             ),
                             fontWeight = FontWeight.ExtraBold,
                             color = Color.White,
@@ -455,22 +456,22 @@ private fun LoadingScreen() {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .shadow(16.dp, RoundedCornerShape(24.dp), spotColor = GamePurple)
-                .background(CardBg, RoundedCornerShape(24.dp))
-                .padding(48.dp)
+                .shadow(Dimens.SpacerLarge, RoundedCornerShape(Dimens.SpacerExtraLarge), spotColor = GamePurple)
+                .background(CardBg, RoundedCornerShape(Dimens.SpacerExtraLarge))
+                .padding(Dimens.PaddingUltraLarge)
         ) {
             CircularProgressIndicator(
-                modifier = Modifier.size(56.dp),
+                modifier = Modifier.size(Dimens.OptionCardHeight),
                 color = GamePurple,
-                strokeWidth = 5.dp
+                strokeWidth = Dimens.BorderWidthLarge
             )
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(Dimens.SpacerExtraLarge))
             Text(
                 text = "LOADING QUESTION...",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color.White,
-                letterSpacing = 2.sp
+                letterSpacing = Dimens.LetterSpaceMedium
             )
         }
     }
@@ -483,7 +484,7 @@ private fun IntervalResultView(
     viewModel: ChallengeViewModel,
     totalQuestions: Int
 ) {
-    var savedAnswer by remember { mutableStateOf<com.adarsh.flag.data.local.entity.AnswerEntity?>(null) }
+    var savedAnswer by remember { mutableStateOf<Answer?>(null) }
 
     LaunchedEffect(question.index) {
         try {
@@ -492,13 +493,13 @@ private fun IntervalResultView(
         } catch (t: Throwable) { }
     }
 
-    val options: List<Country> = remember(question.optionsJson) {
+    val options: List<Country> = remember(question.options) {
         val json = Json { ignoreUnknownKeys = true }
         try {
-            val decoded = json.decodeFromString(ListSerializer(Country.serializer()), question.optionsJson)
+            val answerOptions = question.options
 
             // Deduplicate by ID
-            decoded.distinctBy { it.id }
+            answerOptions.distinctBy { it.id }
         } catch (t: Throwable) {
             emptyList()
         }
@@ -521,19 +522,19 @@ private fun IntervalResultView(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(20.dp)
+                    .padding(Dimens.SpacerMediumLarge)
             ) {
                 // Result Header Card
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .shadow(
-                            elevation = 20.dp,
-                            shape = RoundedCornerShape(24.dp),
+                            elevation = Dimens.SpacerMediumLarge,
+                            shape = RoundedCornerShape(Dimens.SpacerExtraLarge),
                             spotColor = if (isCorrectAnswer) GameGreen else GameRed
                         ),
                     colors = CardDefaults.cardColors(containerColor = CardBg),
-                    shape = RoundedCornerShape(24.dp)
+                    shape = RoundedCornerShape(Dimens.SpacerExtraLarge)
                 ) {
                     Box(
                         modifier = Modifier.background(
@@ -548,43 +549,43 @@ private fun IntervalResultView(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(28.dp),
+                                .padding(Dimens.SpacerExtraLarge),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
                                 imageVector = if (isCorrectAnswer) Icons.Default.CheckCircle else Icons.Default.Close,
                                 contentDescription = null,
-                                modifier = Modifier.size(80.dp),
+                                modifier = Modifier.size(Dimens.IconSizeUltra),
                                 tint = if (isCorrectAnswer) GameGreen else GameRed
                             )
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(Dimens.SpacerLarge))
 
                             Text(
                                 text = if (isCorrectAnswer) "CORRECT!" else "INCORRECT",
                                 style = MaterialTheme.typography.headlineLarge,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = if (isCorrectAnswer) GameGreen else GameRed,
-                                letterSpacing = 2.sp
+                                letterSpacing = Dimens.LetterSpaceMedium
                             )
 
-                            Spacer(modifier = Modifier.height(12.dp))
+                            Spacer(modifier = Modifier.height(Dimens.SpacerMedium))
 
                             Surface(
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(Dimens.SpacerMedium),
                                 color = GameBlue.copy(alpha = 0.2f)
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                                    modifier = Modifier.padding(horizontal = Dimens.SpacerLarge, vertical = Dimens.SpacerSmall),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Notifications,
                                         contentDescription = null,
                                         tint = GameBlue,
-                                        modifier = Modifier.size(20.dp)
+                                        modifier = Modifier.size(Dimens.SpacerMediumLarge)
                                     )
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Spacer(modifier = Modifier.width(Dimens.SpacerSmall))
                                     val isLastQuestion = question.index + 1 == totalQuestions
 
                                     Text(
@@ -599,9 +600,9 @@ private fun IntervalResultView(
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacerExtraLarge))
 
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(Dimens.SpacerMedium)) {
                     options.forEachIndexed { index, opt ->
                         val isCorrect = opt.id == question.correctAnswerId
                         val isSelected = savedAnswer?.selectedOptionId == opt.id
@@ -623,7 +624,7 @@ private fun IntervalResultView(
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = GameGreen,
-                                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                    modifier = Modifier.padding(start = Dimens.SpacerLarge, top = Dimens.SpacerExtraSmall)
                                 )
                             } else if (isSelected && !isCorrect) {
                                 // User selected wrong answer
@@ -632,7 +633,7 @@ private fun IntervalResultView(
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = GameRed,
-                                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                    modifier = Modifier.padding(start = Dimens.SpacerLarge, top = Dimens.SpacerExtraSmall)
                                 )
                             } else if (!isSelected && isCorrect && !isCorrectAnswer) {
                                 // Show correct answer when user was wrong
@@ -641,7 +642,7 @@ private fun IntervalResultView(
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = GameGreen,
-                                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                    modifier = Modifier.padding(start = Dimens.SpacerLarge, top = Dimens.SpacerExtraSmall)
                                 )
                             }
                         }
@@ -653,8 +654,8 @@ private fun IntervalResultView(
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    .padding(Dimens.SpacerLarge),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.SpacerLarge)
             ) {
                 Column(
                     modifier = Modifier
@@ -668,8 +669,8 @@ private fun IntervalResultView(
                             .fillMaxWidth()
                             .weight(1f)
                             .shadow(
-                                elevation = 20.dp,
-                                shape = RoundedCornerShape(24.dp),
+                                elevation = Dimens.SpacerMediumLarge,
+                                shape = RoundedCornerShape(Dimens.SpacerExtraLarge),
                                 spotColor = if (isCorrectAnswer) GameGreen else GameRed
                             ),
                         colors = CardDefaults.cardColors(containerColor = CardBg)
@@ -691,24 +692,24 @@ private fun IntervalResultView(
                                 Icon(
                                     imageVector = if (isCorrectAnswer) Icons.Default.CheckCircle else Icons.Default.Close,
                                     contentDescription = null,
-                                    modifier = Modifier.size(100.dp),
+                                    modifier = Modifier.size(Dimens.IconSizeUltra),
                                     tint = if (isCorrectAnswer) GameGreen else GameRed
                                 )
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(Dimens.SpacerLarge))
 
                     Text(
                         text = if (isCorrectAnswer) "CORRECT!" else "INCORRECT",
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.ExtraBold,
                         color = if (isCorrectAnswer) GameGreen else GameRed,
-                        letterSpacing = 2.sp
+                        letterSpacing = Dimens.LetterSpaceMedium
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(Dimens.SpacerMedium))
 
                     val isLastQuestion = question.index + 1 == totalQuestions
 
@@ -727,7 +728,7 @@ private fun IntervalResultView(
                         .fillMaxHeight()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(Dimens.SpacerMedium)) {
                         options.forEachIndexed { index, opt ->
                             val isCorrect = opt.id == question.correctAnswerId
                             val isSelected = savedAnswer?.selectedOptionId == opt.id
@@ -749,7 +750,7 @@ private fun IntervalResultView(
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = GameGreen,
-                                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                        modifier = Modifier.padding(start = Dimens.SpacerLarge, top = Dimens.SpacerExtraSmall)
                                     )
                                 } else if (isSelected && !isCorrect) {
                                     // User selected wrong answer
@@ -758,7 +759,7 @@ private fun IntervalResultView(
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = GameRed,
-                                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                        modifier = Modifier.padding(start = Dimens.SpacerLarge, top = Dimens.SpacerExtraSmall)
                                     )
                                 } else if (!isSelected && isCorrect && !isCorrectAnswer) {
                                     // Show correct answer when user was wrong
@@ -767,7 +768,7 @@ private fun IntervalResultView(
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = GameGreen,
-                                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                        modifier = Modifier.padding(start = Dimens.SpacerLarge, top = Dimens.SpacerExtraSmall)
                                     )
                                 }
                             }
@@ -804,10 +805,10 @@ private fun IntervalPlaceholder(remainingMs: Long) {
     ) {
         Card(
             modifier = Modifier
-                .padding(32.dp)
-                .shadow(20.dp, RoundedCornerShape(28.dp), spotColor = GameBlue),
+                .padding(Dimens.PaddingExtraLarge)
+                .shadow(Dimens.SpacerMediumLarge, RoundedCornerShape(Dimens.SpacerExtraLarge), spotColor = GameBlue),
             colors = CardDefaults.cardColors(containerColor = CardBg),
-            shape = RoundedCornerShape(28.dp)
+            shape = RoundedCornerShape(Dimens.SpacerExtraLarge)
         ) {
             Box(
                 modifier = Modifier
@@ -819,7 +820,7 @@ private fun IntervalPlaceholder(remainingMs: Long) {
                             )
                         )
                     )
-                    .padding(48.dp),
+                    .padding(Dimens.PaddingUltraLarge),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -827,19 +828,19 @@ private fun IntervalPlaceholder(remainingMs: Long) {
                         imageVector = Icons.Default.Notifications,
                         contentDescription = null,
                         modifier = Modifier
-                            .size(80.dp)
+                            .size(Dimens.IconSizeUltra)
                             .scale(pulseScale),
                         tint = GameBlue
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(Dimens.SpacerExtraLarge))
                     Text(
                         text = "NEXT QUESTION",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color.White,
-                        letterSpacing = 2.sp
+                        letterSpacing = Dimens.LetterSpaceMedium
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(Dimens.SpacerLarge))
                     Text(
                         text = formatMs(remainingMs),
                         style = MaterialTheme.typography.displayMedium,
@@ -862,11 +863,11 @@ private fun QuestionContent(
     val scope = rememberCoroutineScope()
     val json = remember { Json { ignoreUnknownKeys = true } }
 
-    val options: List<Country> = remember(question.optionsJson) {
+    val options: List<Country> = remember(question.options) {
         try {
-            val decoded = json.decodeFromString(ListSerializer(Country.serializer()), question.optionsJson)
+            val answerOptions = question.options
             // Deduplicate by ID
-            decoded.distinctBy { it.id }
+            answerOptions.distinctBy { it.id }
         } catch (t: Throwable) {
             listOf(
                 Country(country_name = "Option 1", id = 1),
@@ -980,15 +981,15 @@ private fun PortraitQuestionLayout(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(20.dp)
+            .padding(Dimens.SpacerMediumLarge)
     ) {
         // Header Card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(12.dp, RoundedCornerShape(20.dp), spotColor = progressColor),
+                .shadow(Dimens.SpacerMedium, RoundedCornerShape(Dimens.SpacerMediumLarge), spotColor = progressColor),
             colors = CardDefaults.cardColors(containerColor = CardBg),
-            shape = RoundedCornerShape(20.dp)
+            shape = RoundedCornerShape(Dimens.SpacerMediumLarge)
         ) {
             Box(
                 modifier = Modifier.background(
@@ -1000,7 +1001,7 @@ private fun PortraitQuestionLayout(
                     )
                 )
             ) {
-                Column(modifier = Modifier.padding(20.dp)) {
+                Column(modifier = Modifier.padding(Dimens.SpacerMediumLarge)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -1011,15 +1012,15 @@ private fun PortraitQuestionLayout(
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.ExtraBold,
                             color = Color.White,
-                            letterSpacing = 1.5.sp
+                            letterSpacing = Dimens.LetterSpaceMediumSmall
                         )
 
                         Surface(
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(Dimens.SpacerMedium),
                             color = progressColor.copy(alpha = 0.2f)
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                modifier = Modifier.padding(horizontal = Dimens.SpacerMedium, vertical = Dimens.PaddingExtraSmall),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
@@ -1027,34 +1028,34 @@ private fun PortraitQuestionLayout(
                                     style = MaterialTheme.typography.labelLarge,
                                     fontWeight = FontWeight.Bold,
                                     color = progressColor,
-                                    letterSpacing = 1.sp
+                                    letterSpacing = Dimens.LetterSpaceSmall
                                 )
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(Dimens.SpacerLarge))
 
                     LinearProgressIndicator(
                         progress = timeProgress,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(10.dp)
-                            .clip(RoundedCornerShape(5.dp)),
+                            .height(Dimens.SpacerSmall)
+                            .clip(RoundedCornerShape(Dimens.BorderWidthLarge)),
                         color = progressColor,
                         trackColor = Color.White.copy(alpha = 0.1f)
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(Dimens.SpacerMedium))
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Notifications,
                             contentDescription = null,
                             tint = progressColor,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(Dimens.SpacerMediumLarge)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(Dimens.SpacerSmall))
                         Text(
                             text = formatMs(localDisplayRemaining),
                             style = MaterialTheme.typography.headlineSmall,
@@ -1066,16 +1067,16 @@ private fun PortraitQuestionLayout(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(Dimens.SpacerExtraLarge))
 
         // Flag Card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(240.dp)
-                .shadow(16.dp, RoundedCornerShape(24.dp), spotColor = GamePurple),
+                .height(Dimens.FlagHeight)
+                .shadow(Dimens.SpacerLarge, RoundedCornerShape(Dimens.SpacerExtraLarge), spotColor = GamePurple),
             colors = CardDefaults.cardColors(containerColor = CardBg),
-            shape = RoundedCornerShape(24.dp)
+            shape = RoundedCornerShape(Dimens.SpacerExtraLarge)
         ) {
             Box(
                 modifier = Modifier
@@ -1107,36 +1108,36 @@ private fun PortraitQuestionLayout(
                         Icon(
                             imageVector = Icons.Default.LocationOn,
                             contentDescription = null,
-                            modifier = Modifier.size(100.dp),
+                            modifier = Modifier.size(Dimens.IconSizeUltra),
                             tint = GamePurple
                         )
-                        Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.height(Dimens.SpacerMediumLarge))
                         Text(
                             text = question.countryCode,
                             style = MaterialTheme.typography.displaySmall,
                             fontWeight = FontWeight.ExtraBold,
                             color = Color.White,
-                            letterSpacing = 3.sp
+                            letterSpacing = Dimens.LetterSpaceLarge
                         )
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(Dimens.SpacerExtraLarge))
 
         Text(
             text = "GUESS THE COUNTRY BY FLAG",
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.ExtraBold,
             color = GameYellow,
-            letterSpacing = 2.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
+            letterSpacing = Dimens.LetterSpaceMedium,
+            modifier = Modifier.padding(bottom = Dimens.SpacerLarge)
         )
 
         val clickable = remainingMs > 0L
 
-        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(Dimens.SpacerMediumLarge)) {
             options.forEachIndexed { index, opt ->
                 val isSelected = selectedId == opt.id
                 val isCorrect = opt.id == question.correctAnswerId
@@ -1202,8 +1203,8 @@ private fun StyledOptionCard(
             .scale(scale)
             .then(if (!isDisabled) Modifier.clickable { onClick() } else Modifier),
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(2.dp, borderColor)
+        shape = RoundedCornerShape(Dimens.SpacerLarge),
+        border = BorderStroke(Dimens.SpacerExtraLargeSmall, borderColor)
     ) {
         Box(
             modifier = Modifier.background(
@@ -1211,26 +1212,26 @@ private fun StyledOptionCard(
             )
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                modifier = Modifier.padding(horizontal = Dimens.SpacerMediumLarge, vertical = Dimens.SpacerSmall),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
                     shape = CircleShape,
                     color = borderColor.copy(alpha = 0.3f),
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(Dimens.PaddingExtraLarge)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = ('A' + index).toString(),
                             fontWeight = FontWeight.ExtraBold,
                             color = borderColor,
-                            fontSize = 18.sp,
-                            letterSpacing = 1.sp
+                            fontSize = Dimens.TextSizeLargeMedium,
+                            letterSpacing = Dimens.LetterSpaceSmall
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(Dimens.SpacerLarge))
 
                 Text(
                     text = text,
@@ -1249,7 +1250,7 @@ private fun StyledOptionCard(
                         imageVector = if (isCorrect) Icons.Default.CheckCircle else Icons.Default.Close,
                         contentDescription = null,
                         tint = if (isCorrect) GameGreen else GameRed,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(Dimens.PaddingExtraLarge)
                     )
                 }
             }
@@ -1273,8 +1274,8 @@ private fun LandscapeQuestionLayout(
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(Dimens.SpacerLarge),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.SpacerLarge)
     ) {
         // Left side - Flag and Timer
         Column(
@@ -1286,43 +1287,57 @@ private fun LandscapeQuestionLayout(
                 progress = timeProgress,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(10.dp)
-                    .clip(RoundedCornerShape(5.dp)),
+                    .height(Dimens.SpacerSmall)
+                    .clip(RoundedCornerShape(Dimens.BorderWidthLarge)),
                 color = progressColor,
                 trackColor = Color.White.copy(alpha = 0.1f)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Dimens.SpacerLarge))
 
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = CardBg)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(Dimens.SpacerMedium, RoundedCornerShape(Dimens.SpacerMediumLarge), spotColor = progressColor),
+                colors = CardDefaults.cardColors(containerColor = CardBg),
+                shape = RoundedCornerShape(Dimens.SpacerMediumLarge)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "QUESTION ${question.index + 1} / $totalQuestions",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        letterSpacing = 1.sp
+                Box(
+                    modifier = Modifier.background(
+                        Brush.linearGradient(
+                            colors = listOf(
+                                progressColor.copy(alpha = 0.2f),
+                                Color.Transparent
+                            )
+                        )
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = formatMs(localDisplayRemaining),
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = progressColor
-                    )
+                ){
+                    Column(modifier = Modifier.padding(Dimens.SpacerMediumLarge)) {
+                        Text(
+                            text = "QUESTION ${question.index + 1} / $totalQuestions",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            letterSpacing = Dimens.LetterSpaceSmall
+                        )
+                        Spacer(modifier = Modifier.height(Dimens.SpacerSmall))
+                        Text(
+                            text = formatMs(localDisplayRemaining),
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = progressColor
+                        )
+                    }
                 }
-            }
+                  }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Dimens.SpacerLarge))
 
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .shadow(16.dp, RoundedCornerShape(24.dp), spotColor = GamePurple),
+                    .shadow(Dimens.SpacerLarge, RoundedCornerShape(Dimens.SpacerExtraLarge), spotColor = GamePurple),
                 colors = CardDefaults.cardColors(containerColor = CardBg)
             ) {
                 Box(
@@ -1355,10 +1370,10 @@ private fun LandscapeQuestionLayout(
                             Icon(
                                 imageVector = Icons.Default.LocationOn,
                                 contentDescription = null,
-                                modifier = Modifier.size(120.dp),
+                                modifier = Modifier.size(Dimens.IconSizeUltra),
                                 tint = GamePurple
                             )
-                            Spacer(modifier = Modifier.height(20.dp))
+                            Spacer(modifier = Modifier.height(Dimens.SpacerMediumLarge))
                             Text(
                                 text = question.countryCode,
                                 style = MaterialTheme.typography.displayMedium,
@@ -1383,13 +1398,13 @@ private fun LandscapeQuestionLayout(
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.ExtraBold,
                 color = GameYellow,
-                letterSpacing = 2.sp,
-                modifier = Modifier.padding(bottom = 16.dp)
+                letterSpacing = Dimens.LetterSpaceMedium,
+                modifier = Modifier.padding(bottom = Dimens.SpacerLarge)
             )
 
             val clickable = remainingMs > 0L
 
-            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(Dimens.SpacerMediumLarge)) {
                 options.forEachIndexed { index, opt ->
                     val isSelected = selectedId == opt.id
                     val isCorrect = opt.id == question.correctAnswerId
@@ -1445,8 +1460,8 @@ private fun StyledReviewOptionCard(
         modifier = Modifier
             .fillMaxWidth(),   // ← removed .shadow()
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(2.dp, borderColor)
+        shape = RoundedCornerShape(Dimens.SpacerLarge),
+        border = BorderStroke(Dimens.SpacerExtraLargeSmall, borderColor)
     ) {
         Box(
             modifier = Modifier.background(
@@ -1454,26 +1469,26 @@ private fun StyledReviewOptionCard(
             )
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                modifier = Modifier.padding(horizontal = Dimens.SpacerMediumLarge, vertical = Dimens.SpacerSmall),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
                     shape = CircleShape,
                     color = borderColor.copy(alpha = 0.3f),
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(Dimens.PaddingExtraLarge)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = ('A' + index).toString(),
                             fontWeight = FontWeight.ExtraBold,
                             color = borderColor,
-                            fontSize = 18.sp,
-                            letterSpacing = 1.sp
+                            fontSize = Dimens.TextSizeLargeMedium,
+                            letterSpacing = Dimens.LetterSpaceSmall
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(Dimens.SpacerLarge))
 
                 Text(
                     text = text,
@@ -1488,7 +1503,7 @@ private fun StyledReviewOptionCard(
                         imageVector = if (isCorrect) Icons.Default.CheckCircle else Icons.Default.Close,
                         contentDescription = null,
                         tint = if (isCorrect) GameGreen else GameRed,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(Dimens.PaddingExtraLarge)
                     )
                 }
             }
@@ -1583,7 +1598,7 @@ private fun PortraitFinishedLayout(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
+            .padding(Dimens.SpacerExtraLarge),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -1594,7 +1609,7 @@ private fun PortraitFinishedLayout(
             isCompact = false
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(Dimens.PaddingExtraLarge))
 
         ScoreCard(
             finalScore = finalScore,
@@ -1604,7 +1619,7 @@ private fun PortraitFinishedLayout(
             isCompact = false
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(Dimens.PaddingExtraLarge))
 
         TryAgainButton(onTryAgain = onTryAgain)
     }
@@ -1624,8 +1639,8 @@ private fun LandscapeFinishedLayout(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 32.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(24.dp),
+            .padding(horizontal = Dimens.PaddingExtraLarge, vertical = Dimens.SpacerLarge),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.SpacerExtraLarge),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
@@ -1642,7 +1657,7 @@ private fun LandscapeFinishedLayout(
                 isCompact = true
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(Dimens.SpacerExtraLarge))
 
             TryAgainButton(onTryAgain = onTryAgain)
         }
@@ -1674,14 +1689,14 @@ private fun FinishedHeaderSection(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(top = if (isCompact) 0.dp else 32.dp)
+        modifier = Modifier.padding(top = if (isCompact) Dimens.PaddingZero else Dimens.PaddingExtraLarge)
     ) {
         // Animated icon
         Box(
             modifier = Modifier
                 .offset(y = (-floatingOffset).dp)
                 .shadow(
-                    16.dp,
+                    Dimens.SpacerLarge,
                     shape = RoundedCornerShape(50),
                     spotColor = if (isPassed) GameGreen else GameYellow
                 )
@@ -1689,31 +1704,31 @@ private fun FinishedHeaderSection(
                     if (isPassed) GameGreen.copy(alpha = 0.2f) else GameYellow.copy(alpha = 0.2f),
                     RoundedCornerShape(50)
                 )
-                .padding(16.dp)
+                .padding(Dimens.SpacerLarge)
         ) {
             Icon(
                 imageVector = if (isPassed) Icons.Default.CheckCircle else Icons.Default.Refresh,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(if (isCompact) 64.dp else 80.dp)
+                    .size(if (isCompact) Dimens.IconSizeExtraLarge else Dimens.IconSizeUltra)
                     .scale(pulseScale),
                 tint = if (isPassed) GameGreen else GameYellow
             )
         }
 
-        Spacer(modifier = Modifier.height(if (isCompact) 12.dp else 16.dp))
+        Spacer(modifier = Modifier.height(if (isCompact) Dimens.SpacerMedium else Dimens.SpacerLarge))
 
         Text(
             text = "GAME OVER",
             style = if (isCompact) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.ExtraBold,
             color = Color.White,
-            letterSpacing = 2.sp,
+            letterSpacing = Dimens.LetterSpaceMedium,
             textAlign = TextAlign.Center
         )
 
         Row(
-            modifier = Modifier.padding(top = if (isCompact) 6.dp else 8.dp),
+            modifier = Modifier.padding(top = if (isCompact) Dimens.PaddingExtraSmall else Dimens.SpacerSmall),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -1721,17 +1736,17 @@ private fun FinishedHeaderSection(
                 imageVector = if (isPassed) Icons.Default.CheckCircle else Icons.Default.Notifications,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(if (isCompact) 16.dp else 18.dp)
+                    .size(if (isCompact) Dimens.SpacerLarge else Dimens.SpacerMediumLarge)
                     .scale(pulseScale),
                 tint = if (isPassed) GameGreen else GameYellow
             )
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(Dimens.PaddingExtraSmall))
             Text(
                 text = if (isPassed) "EXCELLENT WORK!" else "KEEP PRACTICING!",
                 style = if (isCompact) MaterialTheme.typography.labelMedium else MaterialTheme.typography.labelLarge,
                 color = if (isPassed) GameGreen else GameYellow,
                 fontWeight = FontWeight.SemiBold,
-                letterSpacing = 1.sp
+                letterSpacing = Dimens.LetterSpaceSmall
             )
         }
     }
@@ -1748,11 +1763,11 @@ private fun ScoreCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(12.dp, RoundedCornerShape(20.dp), spotColor = GamePurple),
+            .shadow(Dimens.SpacerMedium, RoundedCornerShape(Dimens.SpacerMediumLarge), spotColor = GamePurple),
         colors = CardDefaults.cardColors(
             containerColor = CardBg
         ),
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(Dimens.SpacerMediumLarge)
     ) {
         Box(
             modifier = Modifier
@@ -1766,7 +1781,7 @@ private fun ScoreCard(
                 )
         ) {
             Column(
-                modifier = Modifier.padding(if (isCompact) 20.dp else 24.dp),
+                modifier = Modifier.padding(if (isCompact) Dimens.SpacerMediumLarge else Dimens.SpacerExtraLarge),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Status badge
@@ -1775,27 +1790,27 @@ private fun ScoreCard(
                     modifier = Modifier
                         .background(
                             if (isPassed) GameGreen.copy(alpha = 0.2f) else GameYellow.copy(alpha = 0.2f),
-                            RoundedCornerShape(8.dp)
+                            RoundedCornerShape(Dimens.SpacerSmall)
                         )
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                        .padding(horizontal = Dimens.SpacerMedium, vertical = Dimens.PaddingExtraSmall)
                 ) {
                     Icon(
                         imageVector = if (isPassed) Icons.Default.CheckCircle else Icons.Default.Refresh,
                         contentDescription = null,
                         tint = if (isPassed) GameGreen else GameYellow,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(Dimens.SpacerLarge)
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(Dimens.PaddingExtraSmall))
                     Text(
                         text = if (isPassed) "PASSED" else "TRY AGAIN",
                         style = MaterialTheme.typography.labelMedium,
                         color = if (isPassed) GameGreen else GameYellow,
                         fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.sp
+                        letterSpacing = Dimens.LetterSpaceSmall
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacerLarge))
 
                 // Score display
                 Row(
@@ -1808,9 +1823,9 @@ private fun ScoreCard(
                                     GamePurple.copy(alpha = 0.3f)
                                 )
                             ),
-                            RoundedCornerShape(12.dp)
+                            RoundedCornerShape(Dimens.SpacerMedium)
                         )
-                        .padding(20.dp),
+                        .padding(Dimens.SpacerMediumLarge),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -1819,9 +1834,9 @@ private fun ScoreCard(
                             text = "YOUR SCORE",
                             style = MaterialTheme.typography.labelMedium,
                             color = Color.White.copy(alpha = 0.6f),
-                            letterSpacing = 1.sp
+                            letterSpacing = Dimens.LetterSpaceSmall
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(Dimens.SpacerSmall))
                         Text(
                             text = "$finalScore / $totalQuestions",
                             style = if (isCompact) MaterialTheme.typography.displayMedium else MaterialTheme.typography.displayLarge,
@@ -1831,7 +1846,7 @@ private fun ScoreCard(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacerLarge))
 
                 // Percentage display
                 Row(
@@ -1844,9 +1859,9 @@ private fun ScoreCard(
                                     GamePurple.copy(alpha = 0.3f)
                                 )
                             ),
-                            RoundedCornerShape(12.dp)
+                            RoundedCornerShape(Dimens.SpacerMedium)
                         )
-                        .padding(16.dp),
+                        .padding(Dimens.SpacerLarge),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -1864,15 +1879,15 @@ private fun ScoreCard(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacerMedium))
 
                 // Progress bar
                 LinearProgressIndicator(
                     progress = { (finalScore.toFloat() / totalQuestions).coerceIn(0f, 1f) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(12.dp)
-                        .clip(RoundedCornerShape(6.dp)),
+                        .height(Dimens.SpacerMedium)
+                        .clip(RoundedCornerShape(Dimens.PaddingExtraSmall)),
                     color = if (isPassed) GameGreen else GameYellow,
                     trackColor = Color.White.copy(alpha = 0.2f)
                 )
@@ -1892,19 +1907,19 @@ private fun TryAgainButton(onTryAgain: () -> Unit) {
         },
         modifier = Modifier
             .fillMaxWidth()
-            .height(68.dp)
+            .height(Dimens.ButtonHeightExtraLarge)
             .shadow(
-                elevation = if (isPressed) 4.dp else 12.dp,
-                shape = RoundedCornerShape(18.dp),
+                elevation = if (isPressed) Dimens.SpacerExtraSmall else Dimens.SpacerMedium,
+                shape = RoundedCornerShape(Dimens.SpacerMediumLarge),
                 spotColor = GamePurple
             )
             .scale(if (isPressed) 0.98f else 1f),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(Dimens.SpacerMediumLarge),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent,
             contentColor = Color.White
         ),
-        contentPadding = PaddingValues(0.dp)
+        contentPadding = PaddingValues(Dimens.PaddingZero)
     ) {
         Box(
             modifier = Modifier
@@ -1927,16 +1942,16 @@ private fun TryAgainButton(onTryAgain: () -> Unit) {
                 Icon(
                     imageVector = Icons.Default.Refresh,
                     contentDescription = null,
-                    modifier = Modifier.size(28.dp),
+                    modifier = Modifier.size(Dimens.SpacerExtraLarge),
                     tint = Color.White
                 )
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(Dimens.SpacerMedium))
                 Text(
                     text = "TRY AGAIN",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.ExtraBold,
                     color = Color.White,
-                    letterSpacing = 1.5.sp
+                    letterSpacing = Dimens.LetterSpaceMediumSmall
                 )
             }
         }

@@ -8,10 +8,9 @@ import javax.inject.Singleton
 
 @Singleton
 class DatabaseInitializer @Inject constructor(
-    private val repo: ChallengeRepository,
-    @ApplicationContext private val context: Context
+    private val repo: ChallengeRepository
 ) {
     suspend fun populateIfNeeded(rawResId: Int) {
-        repo.populateQuestionsIfEmpty(context, rawResId)
+        repo.populateQuestionsIfEmpty( rawResId)
     }
 }

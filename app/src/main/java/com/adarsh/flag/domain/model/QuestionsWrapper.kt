@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class QuestionsWrapper(
-    val questions: List<Question>
+    val questions: List<QuestionDto>
 )

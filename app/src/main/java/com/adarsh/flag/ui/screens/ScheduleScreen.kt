@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.adarsh.flag.ui.state.AlertState
 import com.adarsh.flag.vm.ChallengeViewModel
-import com.yourapp.ui.components.WarningAlert
+import com.adarsh.flag.ui.components.WarningAlert
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -47,14 +47,13 @@ import java.time.format.DateTimeFormatter
 import com.adarsh.flag.R
 import com.adarsh.flag.ui.theme.CardBg
 import com.adarsh.flag.ui.theme.DarkBg
+import com.adarsh.flag.ui.theme.Dimens
 import com.adarsh.flag.ui.theme.GameBlue
 import com.adarsh.flag.ui.theme.GameGreen
 import com.adarsh.flag.ui.theme.GamePink
 import com.adarsh.flag.ui.theme.GamePurple
 import com.adarsh.flag.ui.theme.GameYellow
 import java.time.Instant
-
-
 
 
 @Composable
@@ -74,10 +73,10 @@ fun ScheduleScreen(
 
     val displayEpoch: Long? = tempSelectedEpochMs ?: scheduledEpoch
 
-    var pickedDate: LocalDate? = displayEpoch?.let {
+    val pickedDate: LocalDate? = displayEpoch?.let {
         Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
     }
-    var pickedTime: LocalTime? = displayEpoch?.let {
+    val pickedTime: LocalTime? = displayEpoch?.let {
         Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalTime()
     }
 
@@ -112,16 +111,13 @@ fun ScheduleScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        val now = LocalDateTime.now()
-        val zone = ZoneId.systemDefault()
-        val zdt = now.atZone(zone)
-        pickedDate = now.toLocalDate()
-        pickedTime = now.toLocalTime()
-        tempSelectedEpochMs = zdt.toInstant().toEpochMilli()
+    //Initialize ONLY IF ViewModel has no value
+
+    LaunchedEffect(scheduledEpoch) {
+        if (scheduledEpoch == null && tempSelectedEpochMs == null) {
+            tempSelectedEpochMs = System.currentTimeMillis()
+        }
     }
-
-
 
     val onTimeChange: (Int, Int, Int) -> Unit = { hour, minute, second ->
         val date = pickedDate ?: LocalDate.now()
@@ -134,6 +130,9 @@ fun ScheduleScreen(
 
         tempSelectedEpochMs = epochMs
     }
+
+    // Has user changed the time?
+    val hasStaged = tempSelectedEpochMs != scheduledEpoch
 
     val onSaveStaged: () -> Unit = {
 
@@ -151,12 +150,12 @@ fun ScheduleScreen(
             }
             viewModel.scheduleChallenge(epoch)
             showSuccess = true
-            tempSelectedEpochMs = null
+            tempSelectedEpochMs = scheduledEpoch   // reset draft to saved value
         }
     }
 
     val onCancelStaged: () -> Unit = {
-        tempSelectedEpochMs = null
+        tempSelectedEpochMs = scheduledEpoch
     }
 
     val isSaved = scheduledEpoch != null
@@ -181,7 +180,7 @@ fun ScheduleScreen(
                 pulseScale = pulseScale,
                 floatingOffset = floatingOffset,
                 onTimeChange = onTimeChange,
-                hasStaged = tempSelectedEpochMs != null,
+                hasStaged = hasStaged,
                 isSaved = isSaved,
                 onSave = onSaveStaged,
                 onCancel = onCancelStaged
@@ -193,7 +192,7 @@ fun ScheduleScreen(
                 pulseScale = pulseScale,
                 floatingOffset = floatingOffset,
                 onTimeChange = onTimeChange,
-                hasStaged = tempSelectedEpochMs != null,
+                hasStaged = hasStaged,
                 isSaved = isSaved,
                 onSave = onSaveStaged,
                 onCancel = onCancelStaged
@@ -214,9 +213,9 @@ fun ScheduleScreen(
             ) {
                 Card(
                     modifier = Modifier
-                        .size(240.dp)
-                        .shadow(24.dp, RoundedCornerShape(32.dp), spotColor = GameGreen)
-                        .clip(RoundedCornerShape(32.dp)),
+                        .size(Dimens.FlagHeight)
+                        .shadow(Dimens.PaddingLarge, RoundedCornerShape(Dimens.PaddingExtraLarge), spotColor = GameGreen)
+                        .clip(RoundedCornerShape(Dimens.PaddingExtraLarge)),
                     colors = CardDefaults.cardColors(
                         containerColor = CardBg
                     )
@@ -241,10 +240,10 @@ fun ScheduleScreen(
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = null,
-                                modifier = Modifier.size(100.dp),
+                                modifier = Modifier.size(Dimens.IconSizeHuge),
                                 tint = GameGreen
                             )
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(Dimens.SpacerLarge))
                             Text(
                                 text = "SCHEDULED!",
                                 style = MaterialTheme.typography.headlineSmall,
@@ -291,7 +290,7 @@ private fun PortraitLayout(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
+            .padding(Dimens.PaddingLarge),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -304,7 +303,7 @@ private fun PortraitLayout(
         ) {
             ScheduleCard(pickedDate = pickedDate, pickedTime = pickedTime, isCompact = false, isSaved = isSaved)
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(Dimens.SpacerExtraLarge))
 
             PickDateTime(
                 hour = pickedTime?.hour ?: LocalTime.now().hour,
@@ -313,7 +312,7 @@ private fun PortraitLayout(
                 onTimeChange = onTimeChange
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Dimens.SpacerLarge))
 
             SaveCancelRow(
                 hasStaged = hasStaged,
@@ -340,8 +339,8 @@ private fun LandscapeLayout(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 32.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(24.dp),
+            .padding(horizontal = Dimens.PaddingExtraLarge, vertical = Dimens.PaddingMedium),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.SpacerExtraLarge),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
@@ -353,7 +352,7 @@ private fun LandscapeLayout(
         ) {
             HeaderSection(pulseScale = pulseScale, floatingOffset = floatingOffset, isCompact = true)
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(Dimens.SpacerExtraLarge))
 
             PickDateTime(
                 hour = pickedTime?.hour ?: LocalTime.now().hour,
@@ -374,7 +373,7 @@ private fun LandscapeLayout(
         ) {
             ScheduleCard(pickedDate = pickedDate, pickedTime = pickedTime, isCompact = true, isSaved = isSaved)
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(Dimens.SpacerMedium))
 
             SaveCancelRow(
                 hasStaged = hasStaged,
@@ -389,21 +388,21 @@ private fun LandscapeLayout(
 private fun HeaderSection(pulseScale: Float, floatingOffset: Float, isCompact: Boolean) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(top = if (isCompact) 0.dp else 32.dp)
+        modifier = Modifier.padding(top = if (isCompact) Dimens.PaddingZero else Dimens.PaddingExtraLarge)
     ) {
         Box(
             modifier = Modifier
                 .offset(y = (-floatingOffset).dp)
-                .shadow(16.dp, shape = RoundedCornerShape(50), spotColor = GamePurple)
+                .shadow(Dimens.SpacerMediumLarge, shape = RoundedCornerShape(50), spotColor = GamePurple)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.flag),
                 contentDescription = null,
-                modifier = Modifier.size(if (isCompact) 64.dp else 80.dp)
+                modifier = Modifier.size(if (isCompact) Dimens.IconSizeExtraLarge else Dimens.IconSizeUltra)
             )
         }
 
-        Spacer(modifier = Modifier.height(if (isCompact) 12.dp else 16.dp))
+        Spacer(modifier = Modifier.height(if (isCompact) Dimens.SpacerMedium else Dimens.SpacerMediumLarge))
 
         Text(
             text = "FLAGS CHALLENGE",
@@ -414,7 +413,7 @@ private fun HeaderSection(pulseScale: Float, floatingOffset: Float, isCompact: B
         )
 
         Row(
-            modifier = Modifier.padding(top = if (isCompact) 6.dp else 8.dp),
+            modifier = Modifier.padding(top = if (isCompact) Dimens.PaddingMediumSmall else Dimens.PaddingSmall),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -422,11 +421,11 @@ private fun HeaderSection(pulseScale: Float, floatingOffset: Float, isCompact: B
                 imageVector = Icons.Default.Notifications,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(if (isCompact) 16.dp else 18.dp)
+                    .size(if (isCompact) Dimens.SpacerMediumLarge else Dimens.SpacerLarge)
                     .scale(pulseScale),
                 tint = GameYellow,
             )
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(Dimens.PaddingMediumSmall))
             Text(
                 text = "SET YOUR PERFECT START TIME",
                 style = if (isCompact) MaterialTheme.typography.labelMedium else MaterialTheme.typography.labelLarge,
@@ -453,12 +452,12 @@ private fun ScheduleCard(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = if (isCompact) 8.dp else 16.dp)
-                .shadow(12.dp, RoundedCornerShape(20.dp), spotColor = GamePurple),
+                .padding(vertical = if (isCompact) Dimens.PaddingSmall else Dimens.SpacerMediumLarge)
+                .shadow(Dimens.SpacerMedium, RoundedCornerShape(Dimens.SpacerExtraLarge), spotColor = GamePurple),
             colors = CardDefaults.cardColors(
                 containerColor = CardBg
             ),
-            shape = RoundedCornerShape(20.dp)
+            shape = RoundedCornerShape(Dimens.SpacerExtraLarge)
         ) {
             Box(
                 modifier = Modifier
@@ -472,23 +471,23 @@ private fun ScheduleCard(
                     )
             ) {
                 Column(
-                    modifier = Modifier.padding(if (isCompact) 20.dp else 24.dp),
+                    modifier = Modifier.padding(if (isCompact) Dimens.SpacerExtraLarge else Dimens.PaddingLarge),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (isSaved) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
-                                .background(GameGreen.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
-                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                                .background(GameGreen.copy(alpha = 0.2f), RoundedCornerShape(Dimens.PaddingSmall))
+                                .padding(horizontal = Dimens.SpacerMedium, vertical = Dimens.PaddingMediumSmall)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = null,
                                 tint = GameGreen,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(Dimens.SpacerMediumLarge)
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(Dimens.PaddingMediumSmall))
                             Text(
                                 text = "LOCKED IN",
                                 style = MaterialTheme.typography.labelMedium,
@@ -498,7 +497,7 @@ private fun ScheduleCard(
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(Dimens.SpacerMedium))
 
                         Text(
                             text = "Challenge begins at:",
@@ -514,7 +513,7 @@ private fun ScheduleCard(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.sp
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
                         Text(
                             text = "Press SAVE to lock in your schedule",
                             style = MaterialTheme.typography.bodySmall,
@@ -523,7 +522,7 @@ private fun ScheduleCard(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(Dimens.SpacerLarge))
 
                     // Date Display
                     if (pickedDate != null) {
@@ -537,9 +536,9 @@ private fun ScheduleCard(
                                             GamePurple.copy(alpha = 0.3f)
                                         )
                                     ),
-                                    RoundedCornerShape(12.dp)
+                                    RoundedCornerShape(Dimens.CardCornerRadiusMedium)
                                 )
-                                .padding(16.dp),
+                                .padding(Dimens.PaddingMedium),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
@@ -547,9 +546,9 @@ private fun ScheduleCard(
                                 imageVector = Icons.Default.DateRange,
                                 contentDescription = null,
                                 tint = GameBlue,
-                                modifier = Modifier.size(if (isCompact) 24.dp else 28.dp)
+                                modifier = Modifier.size(if (isCompact) Dimens.PaddingLarge else Dimens.PaddingMediumLarge)
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(Dimens.SpacerMedium))
                             Text(
                                 text = pickedDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
                                 style = if (isCompact) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineSmall,
@@ -561,7 +560,7 @@ private fun ScheduleCard(
 
                     // Time Display
                     if (pickedTime != null) {
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(Dimens.SpacerMedium))
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -572,9 +571,9 @@ private fun ScheduleCard(
                                             GamePurple.copy(alpha = 0.3f)
                                         )
                                     ),
-                                    RoundedCornerShape(12.dp)
+                                    RoundedCornerShape(Dimens.CardCornerRadiusMedium)
                                 )
-                                .padding(16.dp),
+                                .padding(Dimens.PaddingMedium),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
@@ -582,9 +581,9 @@ private fun ScheduleCard(
                                 imageVector = Icons.Default.Notifications,
                                 contentDescription = null,
                                 tint = GamePink,
-                                modifier = Modifier.size(if (isCompact) 24.dp else 28.dp)
+                                modifier = Modifier.size(if (isCompact) Dimens.PaddingLarge else Dimens.PaddingMediumLarge)
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(Dimens.SpacerMedium))
                             Text(
                                 text = pickedTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")),
                                 style = if (isCompact) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineSmall,
@@ -610,6 +609,13 @@ private fun PickDateTime(
     var currentMinute by remember { mutableIntStateOf(minute) }
     var currentSecond by remember { mutableIntStateOf(second) }
 
+    //Sync when parent values change
+    LaunchedEffect(hour, minute, second) {
+        currentHour = hour
+        currentMinute = minute
+        currentSecond = second
+    }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
@@ -626,7 +632,7 @@ private fun PickDateTime(
             }
         )
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(Dimens.SpacerMedium))
 
         Text(
             text = ":",
@@ -635,7 +641,7 @@ private fun PickDateTime(
             color = Color.White
         )
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(Dimens.SpacerMedium))
 
         // Minute
         TimeBox(
@@ -648,7 +654,7 @@ private fun PickDateTime(
             }
         )
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(Dimens.SpacerMedium))
 
         Text(
             text = ":",
@@ -657,7 +663,7 @@ private fun PickDateTime(
             color = Color.White
         )
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(Dimens.SpacerMedium))
 
         // Second
         TimeBox(
@@ -690,21 +696,21 @@ private fun TimeBox(
             letterSpacing = 1.sp
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(Dimens.PaddingSmall))
 
         Box(
             modifier = Modifier
-                .size(80.dp)
+                .size(Dimens.IconSizeUltra)
                 .background(
                     color = Color.White,
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(Dimens.SpacerMedium)
                 )
                 .border(
-                    width = 2.dp,
+                    width = Dimens.BorderWidth,
                     brush = Brush.horizontalGradient(
                         colors = listOf(GamePurple, GamePink, GameBlue)
                     ),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(Dimens.SpacerMedium)
                 ),
             contentAlignment = Alignment.Center
         ) {
@@ -716,7 +722,7 @@ private fun TimeBox(
                     onClick = {
                         onValueChange(if (value >= maxValue) 0 else value + 1)
                     },
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(Dimens.PaddingLarge)
                 ) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowUp,
@@ -738,7 +744,7 @@ private fun TimeBox(
                     onClick = {
                         onValueChange(if (value <= 0) maxValue else value - 1)
                     },
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(Dimens.PaddingLarge)
                 ) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowDown,
@@ -754,23 +760,23 @@ private fun TimeBox(
 private fun SaveCancelRow(hasStaged: Boolean, onSave: () -> Unit, onCancel: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(Dimens.SpacerMediumLarge)
     ) {
         // Cancel Button
         OutlinedButton(
             onClick = onCancel,
             modifier = Modifier
                 .weight(1f)
-                .height(56.dp)
+                .height(Dimens.ButtonHeightLarge)
                 .shadow(
-                    elevation = if (hasStaged) 6.dp else 0.dp,
-                    shape = RoundedCornerShape(14.dp),
+                    elevation = if (hasStaged) Dimens.PaddingMediumSmall else Dimens.PaddingZero,
+                    shape = RoundedCornerShape(Dimens.SpacerMediumLarge),
                     spotColor = Color.Red.copy(alpha = 0.3f)
                 ),
             enabled = hasStaged,
-            shape = RoundedCornerShape(14.dp),
+            shape = RoundedCornerShape(Dimens.SpacerMediumLarge),
             border = BorderStroke(
-                width = 2.dp,
+                width = Dimens.BorderWidth,
                 color = if (hasStaged) Color(0xFFEF4444) else Color.Gray.copy(alpha = 0.3f)
             ),
             colors = ButtonDefaults.outlinedButtonColors(
@@ -783,9 +789,9 @@ private fun SaveCancelRow(hasStaged: Boolean, onSave: () -> Unit, onCancel: () -
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = null,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(Dimens.IconSizeMedium)
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(Dimens.PaddingSmall))
             Text(
                 text = "CANCEL",
                 style = MaterialTheme.typography.labelLarge,
@@ -799,21 +805,21 @@ private fun SaveCancelRow(hasStaged: Boolean, onSave: () -> Unit, onCancel: () -
             onClick = onSave,
             modifier = Modifier
                 .weight(1f)
-                .height(56.dp)
+                .height(Dimens.ButtonHeightLarge)
                 .shadow(
-                    elevation = if (hasStaged) 10.dp else 0.dp,
-                    shape = RoundedCornerShape(14.dp),
+                    elevation = if (hasStaged) Dimens.ShadowElevation else Dimens.PaddingZero,
+                    shape = RoundedCornerShape(Dimens.SpacerMediumLarge),
                     spotColor = GameGreen
                 ),
             enabled = hasStaged,
-            shape = RoundedCornerShape(14.dp),
+            shape = RoundedCornerShape(Dimens.SpacerMediumLarge),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
                 contentColor = Color.White,
                 disabledContainerColor = Color.Gray.copy(alpha = 0.2f),
                 disabledContentColor = Color.Gray.copy(alpha = 0.4f)
             ),
-            contentPadding = PaddingValues(0.dp)
+            contentPadding = PaddingValues(Dimens.PaddingZero)
         ) {
             Box(
                 modifier = Modifier
@@ -844,9 +850,9 @@ private fun SaveCancelRow(hasStaged: Boolean, onSave: () -> Unit, onCancel: () -
                     Icon(
                         imageVector = Icons.Default.Save,
                         contentDescription = null,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(Dimens.IconSizeMedium)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(Dimens.PaddingSmall))
                     Text(
                         text = "SAVE",
                         style = MaterialTheme.typography.labelLarge,

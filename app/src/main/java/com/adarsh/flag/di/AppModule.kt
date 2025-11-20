@@ -2,6 +2,7 @@ package com.adarsh.flag.di
 
 import android.content.Context
 import androidx.room.Room
+import com.adarsh.flag.alarm.AlarmScheduler
 import com.adarsh.flag.data.local.dao.AnswerDao
 import com.adarsh.flag.data.local.dao.ChallengeSettingsDao
 import com.adarsh.flag.data.local.dao.QuestionDao
@@ -27,17 +28,32 @@ object AppModule {
     }
 
     @Provides
+    @Singleton
     fun provideQuestionDao(db: AppDatabase): QuestionDao = db.questionDao()
 
     @Provides
+    @Singleton
     fun provideAnswerDao(db: AppDatabase): AnswerDao = db.answerDao()
 
     @Provides
+    @Singleton
     fun provideChallengeSettingsDao(db: AppDatabase): ChallengeSettingsDao = db.challengeSettingsDao()
 
     @Provides
     @Singleton
-    fun provideChallengeRepository(db: AppDatabase,@ApplicationContext appContext: Context): ChallengeRepository {
-        return ChallengeRepository(db, appContext)
+    fun provideChallengeRepository(
+        questionDao: QuestionDao,
+        answerDao: AnswerDao,
+        settingsDao: ChallengeSettingsDao,
+        @ApplicationContext appContext: Context
+    ): ChallengeRepository {
+        return ChallengeRepository(questionDao, answerDao, settingsDao, appContext)
     }
+
+    @Provides
+    @Singleton
+    fun provideAlarmScheduler(
+        @ApplicationContext context: Context
+    ): AlarmScheduler = AlarmScheduler(context)
+
 }

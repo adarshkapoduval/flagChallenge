@@ -1,21 +1,15 @@
 package com.adarsh.flag.vm
 
-import android.app.AlarmManager
-import android.app.Application
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.adarsh.flag.data.local.entity.AnswerEntity
+import com.adarsh.flag.alarm.AlarmScheduler
 import com.adarsh.flag.domain.constants.ChallengeConstants
+import com.adarsh.flag.domain.model.Answer
 import com.adarsh.flag.domain.model.enums.Phase
-import com.adarsh.flag.receiver.StartGameReceiver
 import com.adarsh.flag.repository.ChallengeRepository
 import com.adarsh.flag.ui.state.UiQuestion
 import com.adarsh.flag.ui.state.UiState
 import com.adarsh.flag.utils.computeChallengeState
-import dagger.hilt.android.internal.Contexts.getApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -30,7 +24,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChallengeViewModel @Inject constructor(
-    private val repo: ChallengeRepository
+    private val repo: ChallengeRepository,
+    private val alarmScheduler: AlarmScheduler
 ) : ViewModel() {
 
     private val _ui = MutableStateFlow(UiState())
@@ -63,7 +58,7 @@ class ChallengeViewModel @Inject constructor(
                         it.questionIndex,
                         it.countryCode,
                         it.correctAnswerId,
-                        it.optionsJson
+                        it.options
                     )
                 }
                 _ui.update { it.copy(questions = uiQs) }
@@ -92,7 +87,7 @@ class ChallengeViewModel @Inject constructor(
         }
     }
 
-    // finalize: ensure an AnswerEntity exists for questionIndex and isCorrect is set appropriately
+    // finalize: ensure an Answer exists for questionIndex and isCorrect is set appropriately
     private suspend fun finalizeQuestionIfNeeded(questionIndex: Int) {
         if (finalizedQuestions.contains(questionIndex)) return
 
@@ -105,7 +100,7 @@ class ChallengeViewModel @Inject constructor(
         val answer = withContext(Dispatchers.IO) { repo.getAnswer(questionIndex) }
         if (answer == null) {
             // user did not answer — record as wrong (-1 or 0 as selectedOptionId)
-            val newAnswer = AnswerEntity(
+            val newAnswer = Answer(
                 questionIndex = questionIndex,
                 selectedOptionId = -1, // indicates no selection
                 answeredAtMs = System.currentTimeMillis(),
@@ -162,7 +157,7 @@ class ChallengeViewModel @Inject constructor(
     fun scheduleChallenge(ms: Long) {
         viewModelScope.launch {
             repo.saveScheduledStartTime(ms)
-            repo.scheduleAlarm(ms)
+            alarmScheduler.scheduleAlarm(ms)
             // update UI immediately from schedule
             updateFromSchedule() // call the suspend function to refresh UI
             startTicker()
@@ -170,7 +165,7 @@ class ChallengeViewModel @Inject constructor(
     }
 
     // 1) expose a suspend getter to load saved answer for a question
-    suspend fun getSavedAnswer(questionIndex: Int): AnswerEntity? {
+    suspend fun getSavedAnswer(questionIndex: Int): Answer? {
         return withContext(Dispatchers.IO) {
             repo.getAnswer(questionIndex)
         }
@@ -182,7 +177,7 @@ class ChallengeViewModel @Inject constructor(
             // persist
             val q = repo.getQuestion(questionIndex) ?: return@launch
             val isCorrect = selectedOptionId == q.correctAnswerId
-            val answer = AnswerEntity(questionIndex, selectedOptionId, System.currentTimeMillis(), isCorrect)
+            val answer = Answer(questionIndex, selectedOptionId, System.currentTimeMillis(), isCorrect)
             repo.saveAnswer(answer)
 
             // update UiState so composable can reflect saved selection immediately

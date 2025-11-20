@@ -1,4 +1,4 @@
-package com.yourapp.ui.components
+package com.adarsh.flag.ui.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,9 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.adarsh.flag.ui.theme.Dimens
 
 @Composable
 fun WarningAlert(
@@ -26,60 +25,60 @@ fun WarningAlert(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            shape = RoundedCornerShape(20.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                .padding(Dimens.PaddingMedium),
+            shape = RoundedCornerShape(Dimens.CardCornerRadiusLarge),
+            elevation = CardDefaults.cardElevation(defaultElevation = Dimens.CardElevationMedium),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(24.dp),
+                    .padding(Dimens.PaddingLarge),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Icon
                 Icon(
                     imageVector = Icons.Default.DateRange,
                     contentDescription = null,
-                    modifier = Modifier.size(64.dp),
+                    modifier = Modifier.size(Dimens.IconSizeExtraLarge),
                     tint = Color(0xFFFF6B6B)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacerLarge))
 
                 // Title
                 Text(
                     text = title,
-                    fontSize = 20.sp,
+                    fontSize = Dimens.TextSizeLarge,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF333333)
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacerSmall))
 
                 // Message
                 Text(
                     text = message,
-                    fontSize = 14.sp,
+                    fontSize = Dimens.TextSizeSmall,
                     color = Color(0xFF666666),
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacerExtraLarge))
 
                 // Button
                 Button(
                     onClick = onDismiss,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
+                        .height(Dimens.ButtonHeight),
+                    shape = RoundedCornerShape(Dimens.CardCornerRadiusMedium),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFFF6B6B)
                     )
                 ) {
                     Text(
                         text = buttonText,
-                        fontSize = 16.sp,
+                        fontSize = Dimens.TextSizeMedium,
                         fontWeight = FontWeight.Medium
                     )
                 }
